@@ -15,7 +15,7 @@
     body, html {
       height: 100%;
       font-family: 'Courier New', monospace;
-      background-color: #000;
+      background: #000;
       color: #fff;
       overflow: hidden;
       position: relative;
@@ -29,8 +29,8 @@
       white-space: pre;
       text-align: center;
       opacity: 1;
-      transition: opacity 2s ease;
-      font-size: 12px;
+      transition: opacity 1.2s ease;
+      font-size: clamp(7px, 1.8vw, 9px);
     }
 
     #mainContent {
@@ -40,67 +40,87 @@
       align-items: center;
       height: 100vh;
       text-align: center;
-      padding: 20px;
-      animation: fadeIn 2s ease forwards;
+      padding: 15px;
+      animation: fadeIn 1.2s ease forwards;
     }
 
     h1 {
-      font-size: 2.5em;
-      margin-bottom: 20px;
+      font-size: clamp(1.6em, 4.5vw, 2em);
+      margin-bottom: 25px;
+      letter-spacing: 1px;
     }
 
     .question {
-      font-size: 1.5em;
-      margin-bottom: 30px;
+      font-size: clamp(1.1em, 2.8vw, 1.3em);
+      margin-bottom: 25px;
     }
 
     .buttons {
       display: flex;
       justify-content: center;
-      gap: 20px;
-      position: relative;
+      gap: 12px;
     }
 
     button {
-      padding: 10px 25px;
-      font-size: 1em;
+      padding: 8px 18px;
+      font-size: clamp(0.85em, 1.8vw, 0.95em);
       background: transparent;
-      border: 2px solid #fff;
+      border: 1.5px solid #fff;
       color: #fff;
       cursor: pointer;
-      transition: 0.3s;
+      transition: all 0.25s ease;
+      border-radius: 4px;
     }
 
-    button:hover {
+    button:hover, button:focus {
       background: #fff;
       color: #000;
+      transform: translateY(-2px);
+      outline: none;
     }
 
     #noBtn {
       position: relative;
+      transition: transform 0.15s ease-out;
     }
 
     @keyframes fadeIn {
-      from { opacity: 0; }
-      to { opacity: 1; }
+      from { opacity: 0; transform: translateY(10px); }
+      to { opacity: 1; transform: translateY(0); }
     }
 
     .heart-anim {
       position: fixed;
-      font-size: 24px;
-      animation: floatUp 4s linear infinite;
+      font-size: clamp(16px, 2.5vw, 20px);
+      animation: floatUp 2s ease-out infinite;
       pointer-events: none;
-      opacity: 0.7;
+      opacity: 0.85;
     }
 
     @keyframes floatUp {
       0% {
-        transform: translateY(0);
-        opacity: 1;
+        transform: translateY(0) translateX(0);
+        opacity: 0.85;
       }
       100% {
-        transform: translateY(-200px);
+        transform: translateY(-200px) translateX(calc(-50px + (100px * var(--random-x))));
         opacity: 0;
+      }
+    }
+
+    @media (max-width: 600px) {
+      #asciiHeart {
+        font-size: 5px;
+      }
+      h1 {
+        font-size: 1.4em;
+      }
+      .question {
+        font-size: 0.9em;
+      }
+      button {
+        padding: 7px 14px;
+        font-size: 0.85em;
       }
     }
   </style>
@@ -109,7 +129,7 @@
   <div id="asciiHeart"></div>
 
   <div id="mainContent">
-    <h1>Kimmiş benim minik prensesim?</h1>
+    <h1>Minik Prensesim 🖤</h1>
     <div class="question">Affettin mi beni?</div>
     <div class="buttons">
       <button onclick="showLove()">Evet</button>
@@ -143,15 +163,15 @@
       if (currentRow < heartFrame.length) {
         ascii.innerHTML += heartFrame[currentRow] + "<br>";
         currentRow++;
-        setTimeout(animateHeart, 100);
+        setTimeout(animateHeart, 60);
       } else {
         setTimeout(() => {
           ascii.style.opacity = 0;
           setTimeout(() => {
             ascii.style.display = "none";
             mainContent.style.display = "flex";
-          }, 2000);
-        }, 1000);
+          }, 1200);
+        }, 600);
       }
     }
 
@@ -163,24 +183,29 @@
         noHovered = true;
         return;
       }
-      const padding = 50;
+      const padding = 15;
       const maxX = window.innerWidth - noBtn.offsetWidth - padding;
       const maxY = window.innerHeight - noBtn.offsetHeight - padding;
-      const i = Math.random() * maxX;
-      const j = Math.random() * maxY;
+      const newX = Math.max(padding, Math.min(maxX, Math.random() * maxX));
+      const newY = Math.max(padding, Math.min(maxY, Math.random() * maxY));
       noBtn.style.position = 'fixed';
-      noBtn.style.left = i + 'px';
-      noBtn.style.top = j + 'px';
+      noBtn.style.left = newX + 'px';
+      noBtn.style.top = newY + 'px';
+    });
+
+    noBtn.addEventListener('focus', () => {
+      noBtn.blur();
     });
 
     function showLove() {
       Swal.fire({
-        title: 'Çok seviyorum seni balım <3',
-        html: '<div style="font-size: 30px;">❤️ 💖 💕 💞 💘</div>',
+        title: 'Seni çok seviyorum balım 🖤',
+        html: '<div style="font-size: 26px;">❤️ 💖</div>',
         icon: 'success',
-        confirmButtonText: 'Ben de seni <3',
-        background: '#111',
+        confirmButtonText: 'Ben de seni 🖤',
+        background: '#000',
         color: '#fff',
+        confirmButtonColor: '#222',
         didOpen: () => {
           spawnHearts();
         }
@@ -188,18 +213,28 @@
     }
 
     function spawnHearts() {
-      for (let i = 0; i < 20; i++) {
+      for (let i = 0; i < 8; i++) {
         const heart = document.createElement("div");
         heart.className = "heart-anim";
-        heart.textContent = ["❤️", "💖", "💕", "💞", "💘"][Math.floor(Math.random()*5)];
+        heart.textContent = ["❤️", "💖"][Math.floor(Math.random() * 2)];
         heart.style.left = Math.random() * 100 + "%";
         heart.style.bottom = "0px";
-        heart.style.position = "fixed";
-        heart.style.zIndex = 9999;
+        heart.style.animationDelay = `${Math.random() * 1}s`;
+        heart.style.setProperty('--random-x', Math.random());
         document.body.appendChild(heart);
-        setTimeout(() => document.body.removeChild(heart), 4000);
+        setTimeout(() => heart.remove(), 2000);
       }
     }
+
+    window.addEventListener('resize', () => {
+      const padding = 15;
+      const maxX = window.innerWidth - noBtn.offsetWidth - padding;
+      const maxY = window.innerHeight - noBtn.offsetHeight - padding;
+      const currentX = parseFloat(noBtn.style.left) || 0;
+      const currentY = parseFloat(noBtn.style.top) || 0;
+      noBtn.style.left = Math.min(maxX, Math.max(padding, currentX)) + 'px';
+      noBtn.style.top = Math.min(maxY, Math.max(padding, currentY)) + 'px';
+    });
   </script>
 </body>
 </html>
